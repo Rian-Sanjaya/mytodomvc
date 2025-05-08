@@ -27,13 +27,16 @@ function Header({ todos, setTodos }) {
   }
 
   return (
-    <div className="border-b-1 border-gray700 mb-2 py-2">
+    <div className="border-b border-gray-200">
       <input 
-        className="border-gray-500 border w-full" 
+        className="w-full placeholder:italic py-2 px-4 focus:border focus:border-gray-500" 
         type="text" 
+        placeholder="What needs to be done?"
+        autoComplete="true"
         onKeyDown={(e) => handleKey(e)}
         value={newtodo}
         onChange={(e) => setNewtodo(e.target.value)}
+        onBlur={() => setNewtodo('')}
       />
     </div>
   )
@@ -78,11 +81,11 @@ function TodosList({ todos, setTodos }) {
     <ul>
       {todos.length > 0 &&
         todos.map((todo) => (
-          <li key={todo.id} className="flex justify-between">
+          <li key={todo.id}>
             {isWritable && writableId === todo.id ? (
               <div className="border border-gray-500 flex-1">
                 <input 
-                  className="w-full" 
+                  className="w-full py-2 px-4" 
                   type="text" 
                   autoFocus 
                   defaultValue={todo.content} 
@@ -91,7 +94,7 @@ function TodosList({ todos, setTodos }) {
                 />
               </div>
             ) : (  
-              <>
+              <div className="flex py-2 border-b border-gray-200">
                 <div className="flex-1 flex">
                   <p className="mr-2">
                     <input 
@@ -100,7 +103,10 @@ function TodosList({ todos, setTodos }) {
                       onChange={e => handleToggle(e, todo.id)} 
                     />
                   </p>
-                  <p className="w-full" onDoubleClick={(e) => handleDoubleClick(e, todo.id)}>
+                  <p 
+                    className={todo.completed ? "w-full line-through" : "w-full"} 
+                    onDoubleClick={(e) => handleDoubleClick(e, todo.id)}
+                  >
                     {todo.content}
                   </p>
                 </div>
@@ -114,7 +120,7 @@ function TodosList({ todos, setTodos }) {
                     </button>
                   </p>
                 </div>
-              </>
+              </div>
             )}
           </li>
         ))
