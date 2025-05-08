@@ -1,0 +1,137 @@
+import { useState } from 'react'
+import './App.css'
+
+const db = [
+  {
+    id: 1,
+    content: 'todo 1',
+    completed: false,
+  },
+  {
+    id: 2,
+    content: 'todo 2',
+    completed: true,
+  }
+]
+
+function Header({ todos, setTodos }) {
+  const [newtodo, setNewtodo] = useState('')
+
+  function handleKey(e) {
+    // console.log(`e: ${e.key}`)
+    if (e.key === 'Enter') {
+      const newTodos = [ ...todos, {id: todos.length+1, content: newtodo, completed: false} ]
+      setTodos(newTodos)
+      setNewtodo('')
+    }
+  }
+
+  return (
+    <div className="border-b-1 border-gray700 mb-2 py-2">
+      <input 
+        className="border-gray-500 border w-full" 
+        type="text" 
+        onKeyDown={(e) => handleKey(e)}
+        value={newtodo}
+        onChange={(e) => setNewtodo(e.target.value)}
+      />
+    </div>
+  )
+}
+
+function TodosList({ todos, setTodos }) {
+  const [isWritable, setIswritable] = useState(false)
+  const [writableId, setWritableId] = useState(-1)
+
+  function handleToggle(e, id) {
+    // console.log(`e: ${e.target.checked}`)
+    // console.log(`id: ${id}`)
+    const newTodos = todos.map(todo => todo.id === id ? {...todo, completed: !todo.completed} : todo)
+    setTodos(newTodos)
+  }
+
+  function handleDelete(id) {
+    const newTodos = todos.filter(todo => todo.id !== id)
+    setTodos(newTodos)
+  }
+
+  function handleDoubleClick(e, id) {
+    setIswritable(true)
+    setWritableId(id)
+  }
+
+  function handleBlur() {
+    setIswritable(false)
+    setWritableId(-1)
+  }
+
+  function handleKeyDown(e, id) {
+    if (e.key === 'Enter') {
+      const newTodos = todos.map(todo => todo.id === id ? { ...todo, content: e.target.value } : todo)
+      setTodos(newTodos)
+      setIswritable(false)
+      setWritableId(-1)
+    }
+  }
+
+  return (
+    <ul>
+      {todos.length > 0 &&
+        todos.map((todo) => (
+          <li key={todo.id} className="flex justify-between">
+            {isWritable && writableId === todo.id ? (
+              <div className="border border-gray-500 flex-1">
+                <input 
+                  className="w-full" 
+                  type="text" 
+                  autoFocus 
+                  defaultValue={todo.content} 
+                  onBlur={e => handleBlur(e)} 
+                  onKeyDown={e => handleKeyDown(e, todo.id)}
+                />
+              </div>
+            ) : (  
+              <>
+                <div className="flex-1 flex">
+                  <p className="mr-2">
+                    <input 
+                      type="checkbox" 
+                      checked={todo.completed} 
+                      onChange={e => handleToggle(e, todo.id)} 
+                    />
+                  </p>
+                  <p className="w-full" onDoubleClick={(e) => handleDoubleClick(e, todo.id)}>
+                    {todo.content}
+                  </p>
+                </div>
+                <div>
+                  <p className="hover:bg-gray-400">
+                    <button 
+                      className="px-2 cursor-pointer" 
+                      onClick={() => handleDelete(todo.id)}
+                    >
+                      X
+                    </button>
+                  </p>
+                </div>
+              </>
+            )}
+          </li>
+        ))
+}
+    </ul>
+  )
+}
+
+function App() {
+  const [todos, setTodos] = useState(db)
+
+  return (
+    <div className="max-w-60">
+      <Header todos={todos} setTodos={setTodos} />
+      <TodosList todos={todos} setTodos={setTodos} />
+    </div>
+  )
+}
+
+export default App
